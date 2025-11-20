@@ -34,15 +34,35 @@
 // - Production workloads with variable access patterns
 // - Applications requiring cost optimization
 // - Workloads with predictable lifecycle patterns (e.g., logs, archives, backups)
+
+module "resource_names" {
+  # checkov:skip=CKV_TF_1: trusted module source
+  source  = "terraform.registry.launch.nttdata.com/module_library/resource_name/launch"
+  version = "~> 2.0"
+
+  for_each = var.resource_names_map
+
+  logical_product_family  = var.logical_product_family
+  logical_product_service = var.logical_product_service
+  region                  = var.region
+  class_env               = var.class_env
+  cloud_resource_type     = each.value.name
+  instance_env            = var.instance_env
+  maximum_length          = each.value.max_length
+  instance_resource       = var.instance_resource
+}
+
 module "efs_complete" {
   source = "../../"
 
   # Unique identifier for the EFS file system within AWS account and region
-  creation_token = var.creation_token
+  # Uses generated name from resource_names module if available, otherwise uses var.creation_token
+  creation_token = try(module.resource_names["efs"].standard, var.creation_token)
 
   # Friendly name for AWS Console identification
   # Automatically creates a 'Name' tag
-  name = var.name
+  # Uses generated name from resource_names module if available, otherwise uses var.name
+  name = try(module.resource_names["efs"].standard, var.name)
 
   # Optional: Specify an Availability Zone for One Zone storage class
   # Leave null (default) for Multi-AZ storage with high availability

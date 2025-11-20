@@ -138,6 +138,7 @@ No providers.
 
 | Name | Source | Version |
 |------|--------|---------|
+| <a name="module_resource_names"></a> [resource\_names](#module\_resource\_names) | terraform.registry.launch.nttdata.com/module_library/resource_name/launch | ~> 2.0 |
 | <a name="module_efs"></a> [efs](#module\_efs) | ../../ | n/a |
 
 ## Resources
@@ -148,8 +149,15 @@ No resources.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_creation_token"></a> [creation\_token](#input\_creation\_token) | A unique name used as reference when creating the EFS | `string` | `"my-efs-example"` | no |
-| <a name="input_name"></a> [name](#input\_name) | Optional name for the EFS file system. If provided, will be added as a 'Name' tag | `string` | `null` | no |
+| <a name="input_logical_product_family"></a> [logical\_product\_family](#input\_logical\_product\_family) | Logical product family name for naming convention | `string` | n/a | yes |
+| <a name="input_logical_product_service"></a> [logical\_product\_service](#input\_logical\_product\_service) | Logical product service name for naming convention | `string` | n/a | yes |
+| <a name="input_class_env"></a> [class\_env](#input\_class\_env) | Environment class for naming convention (e.g., sandbox, dev, prod) | `string` | n/a | yes |
+| <a name="input_instance_env"></a> [instance\_env](#input\_instance\_env) | Environment instance number for naming convention | `number` | n/a | yes |
+| <a name="input_instance_resource"></a> [instance\_resource](#input\_instance\_resource) | Resource instance number for naming convention | `number` | n/a | yes |
+| <a name="input_region"></a> [region](#input\_region) | AWS region for naming convention | `string` | n/a | yes |
+| <a name="input_resource_names_map"></a> [resource\_names\_map](#input\_resource\_names\_map) | Map of resource types to their configurations for name generation | <pre>map(object({<br/>    name       = string<br/>    max_length = optional(number, 60)<br/>  }))</pre> | `{}` | no |
+| <a name="input_creation_token"></a> [creation\_token](#input\_creation\_token) | A unique name used as reference when creating the EFS. If null, will use generated name from resource\_names module | `string` | `null` | no |
+| <a name="input_name"></a> [name](#input\_name) | Optional name for the EFS file system. If provided, will be added as a 'Name' tag. If null, will use generated name from resource\_names module | `string` | `null` | no |
 | <a name="input_encrypted"></a> [encrypted](#input\_encrypted) | If true, the disk will be encrypted | `bool` | `true` | no |
 | <a name="input_kms_key_id"></a> [kms\_key\_id](#input\_kms\_key\_id) | ARN for the KMS encryption key. Required if encrypted is true | `string` | `null` | no |
 | <a name="input_performance_mode"></a> [performance\_mode](#input\_performance\_mode) | The file system performance mode | `string` | `"generalPurpose"` | no |

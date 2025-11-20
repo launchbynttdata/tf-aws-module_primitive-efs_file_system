@@ -10,16 +10,56 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-variable "creation_token" {
-  description = "A unique name used as reference when creating the EFS"
+# Naming Module Variables
+variable "logical_product_family" {
+  description = "Logical product family name for naming convention"
   type        = string
-  default     = "my-efs-complete-example"
+}
+
+variable "logical_product_service" {
+  description = "Logical product service name for naming convention"
+  type        = string
+}
+
+variable "class_env" {
+  description = "Environment class for naming convention (e.g., sandbox, dev, prod)"
+  type        = string
+}
+
+variable "instance_env" {
+  description = "Environment instance number for naming convention"
+  type        = number
+}
+
+variable "instance_resource" {
+  description = "Resource instance number for naming convention"
+  type        = number
+}
+
+variable "region" {
+  description = "AWS region for naming convention"
+  type        = string
+}
+
+variable "resource_names_map" {
+  description = "Map of resource types to their configurations for name generation"
+  type = map(object({
+    name       = string
+    max_length = optional(number, 60)
+  }))
+  default = {}
+}
+
+variable "creation_token" {
+  description = "A unique name used as reference when creating the EFS. If null, will use generated name from resource_names module"
+  type        = string
+  default     = null
 }
 
 variable "name" {
-  description = "Optional name for the EFS file system. If provided, will be added as a 'Name' tag"
+  description = "Optional name for the EFS file system. If provided, will be added as a 'Name' tag. If null, will use generated name from resource_names module"
   type        = string
-  default     = "Complete EFS Example"
+  default     = null
 }
 
 variable "availability_zone_name" {

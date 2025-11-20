@@ -2,12 +2,30 @@
 # This example demonstrates all available features and configurations
 # Copy this file to test.tfvars and customize the values as needed
 
+# Naming Module Configuration
+logical_product_family  = "launch"
+logical_product_service = "efs"
+class_env               = "sandbox"
+instance_env            = 0
+instance_resource       = 0
+region                  = "us-west-2"
+
+# Resource names map for generating standardized names
+resource_names_map = {
+  efs = {
+    name       = "efs"
+    max_length = 60
+  }
+}
+
 # Unique identifier for the EFS file system
-creation_token = "my-complete-efs"
+# Commented out to use generated name from resource_names module
+# creation_token = "my-complete-efs"
 
 # (Optional) Friendly name for the EFS file system
 # Will be added as a 'Name' tag for easier identification in the AWS console
-name = "Complete EFS Example"
+# Commented out to use generated name from resource_names module
+# name = "Complete EFS Example"
 
 # (Optional) Specify an Availability Zone for One Zone storage class
 # Leave null for Multi-AZ storage (recommended for production)

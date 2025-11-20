@@ -1,13 +1,31 @@
 # Example configuration for EFS File System
 # Copy this file to test.tfvars and customize the values as needed
 
+# Naming Module Configuration
+logical_product_family  = "launch"
+logical_product_service = "efs"
+class_env               = "sandbox"
+instance_env            = 1
+instance_resource       = 0
+region                  = "us-west-2"
+
+# Resource names map for generating standardized names
+resource_names_map = {
+  efs = {
+    name       = "efs"
+    max_length = 60
+  }
+}
+
 # Unique identifier for the EFS file system
 # This should be unique within your AWS account and region
-creation_token = "my-test-efs"
+# Commented out to use generated name from resource_names module
+# creation_token = "my-test-efs"
 
 # (Optional) Friendly name for the EFS file system
 # Will be added as a 'Name' tag for easier identification in the AWS console
-name = "Simple EFS Example"
+# Commented out to use generated name from resource_names module
+# name = "Simple EFS Example"
 
 # Enable encryption at rest for the EFS file system
 # Set to false if encryption is not required (not recommended for production)
