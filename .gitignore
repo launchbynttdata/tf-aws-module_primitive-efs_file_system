@@ -63,4 +63,3 @@ azure_env.sh
 .vscode/
 .devcontainer/
 .context/
-*.tfvars

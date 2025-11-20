@@ -1,33 +1,33 @@
-# Simple EFS Example - Test Configuration
-# This file contains test values for the simple example configuration.
-# It demonstrates a minimal, working EFS setup suitable for development and testing.
+# Example configuration for EFS File System
+# Copy this file to test.tfvars and customize the values as needed
 
 # Unique identifier for the EFS file system
-# Must be unique within your AWS account and region
-# Update this value to avoid conflicts with existing file systems
-creation_token = "jwidby-sand-test"
+# This should be unique within your AWS account and region
+creation_token = "my-test-efs"
 
-# Friendly name displayed in AWS Console
-# Creates a 'Name' tag for easy identification
+# (Optional) Friendly name for the EFS file system
+# Will be added as a 'Name' tag for easier identification in the AWS console
 name = "Simple EFS Example"
 
-# Enable encryption at rest
-# Uses AWS managed key (aws/elasticfilesystem) by default
-# Set to false only if encryption is not required (not recommended for production)
+# Enable encryption at rest for the EFS file system
+# Set to false if encryption is not required (not recommended for production)
 encrypted = true
 
-# Performance mode: generalPurpose or maxIO
-# General Purpose provides lower latency and is suitable for most workloads
-# Use maxIO only for highly parallelized workloads requiring maximum throughput
+# (Optional) KMS Key ARN for encryption
+# Leave commented out to use AWS managed key (aws/elasticfilesystem)
+# Uncomment and provide your KMS key ARN if using customer managed keys
+# kms_key_id       = "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012"
+
+# Performance mode for the file system
+# Options: "generalPurpose" (default, recommended for most workloads) or "maxIO" (for high throughput)
 performance_mode = "generalPurpose"
 
-# Throughput mode: bursting, elastic, or provisioned
-# Bursting scales throughput with file system size
-# This is cost-effective for workloads with baseline throughput requirements
+# Throughput mode for the file system
+# Options: "bursting" (scales with file system size) or "provisioned" (fixed throughput)
 throughput_mode = "bursting"
 
-# Resource tags for organization and cost tracking
-# Module automatically adds 'ManagedBy = Terraform' tag
+# Tags to apply to the EFS file system
+# These will be merged with default tags (ManagedBy = "Terraform")
 tags = {
   Environment = "test"
   Example     = "simple"
