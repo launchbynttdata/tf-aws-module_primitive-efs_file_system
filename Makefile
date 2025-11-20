@@ -1,3 +1,4 @@
+
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -56,6 +57,7 @@ GIT_EMAIL_SET = $(shell git config --get user.email > /dev/null 2>&1; echo $$?)
 .PHONY: configure-git-hooks
 configure-git-hooks: configure-dependencies
 ifeq ($(PYTHON3_INSTALLED), 0)
+	@test -L /usr/bin/python || sudo ln -s /usr/bin/python3 /usr/bin/python
 	pre-commit install
 else
 	$(error Missing python3, which is required for pre-commit. Install python3 and rerun.)
@@ -130,6 +132,7 @@ init-clean:
 ifneq (,$(wildcard ./TEMPLATED_README.md))
 	mv TEMPLATED_README.md README.MD
 endif
+
 
 .PHONY: init-module
 init-module:

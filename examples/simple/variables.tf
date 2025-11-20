@@ -10,8 +10,47 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-variable "hello_message" {
-  description = "A friendly hello message."
+variable "creation_token" {
+  description = "A unique name used as reference when creating the EFS"
   type        = string
-  default     = "Hello, Terraform!"
+  default     = "my-efs-example"
+}
+
+variable "name" {
+  description = "Optional name for the EFS file system. If provided, will be added as a 'Name' tag"
+  type        = string
+  default     = null
+}
+
+variable "encrypted" {
+  description = "If true, the disk will be encrypted"
+  type        = bool
+  default     = true
+}
+
+variable "kms_key_id" {
+  description = "ARN for the KMS encryption key. Required if encrypted is true"
+  type        = string
+  default     = null
+}
+
+variable "performance_mode" {
+  description = "The file system performance mode"
+  type        = string
+  default     = "generalPurpose"
+}
+
+variable "throughput_mode" {
+  description = "Throughput mode for the file system"
+  type        = string
+  default     = "bursting"
+}
+
+variable "tags" {
+  description = "A map of tags to assign to the EFS file system"
+  type        = map(string)
+  default = {
+    Environment = "dev"
+    Example     = "simple"
+  }
 }

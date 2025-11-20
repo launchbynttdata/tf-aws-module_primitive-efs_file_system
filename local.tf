@@ -3,6 +3,7 @@ locals {
     {
       "ManagedBy" = "Terraform"
     },
+    var.name != null ? { "Name" = var.name } : {},
     var.tags,
   )
 }

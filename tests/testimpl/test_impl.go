@@ -7,7 +7,8 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/sts"
+	"github.com/aws/aws-sdk-go-v2/service/efs"
+	"github.com/aws/aws-sdk-go-v2/service/efs/types"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	testTypes "github.com/launchbynttdata/lcaf-component-terratest/types"
 	"github.com/stretchr/testify/assert"
@@ -15,57 +16,108 @@ import (
 )
 
 func TestComposableComplete(t *testing.T, ctx testTypes.TestContext) {
-	// Get AWS STS client to verify account info
-	stsClient := GetAWSSTSClient(t)
-
-	// Get the actual caller identity from AWS
-	callerIdentity, err := stsClient.GetCallerIdentity(context.TODO(), &sts.GetCallerIdentityInput{})
-	require.NoError(t, err, "Failed to get caller identity from AWS")
+	// Get AWS EFS client
+	efsClient := GetAWSEFSClient(t)
 
 	// Get outputs from Terraform
-	accountId := terraform.Output(t, ctx.TerratestTerraformOptions(), "account_id")
-	arn := terraform.Output(t, ctx.TerratestTerraformOptions(), "arn")
-	helloMessage := terraform.Output(t, ctx.TerratestTerraformOptions(), "hello_message")
+	fileSystemId := terraform.Output(t, ctx.TerratestTerraformOptions(), "file_system_id")
+	fileSystemArn := terraform.Output(t, ctx.TerratestTerraformOptions(), "file_system_arn")
+	fileSystemDnsName := terraform.Output(t, ctx.TerratestTerraformOptions(), "file_system_dns_name")
+	fileSystemCreationToken := terraform.Output(t, ctx.TerratestTerraformOptions(), "file_system_creation_token")
+	fileSystemName := terraform.Output(t, ctx.TerratestTerraformOptions(), "file_system_name")
 
-	t.Run("TestAccountIdMatches", func(t *testing.T) {
-		testAccountIdMatches(t, callerIdentity, accountId)
+	// Get the actual file system from AWS
+	fileSystem, err := efsClient.DescribeFileSystems(context.TODO(), &efs.DescribeFileSystemsInput{
+		FileSystemId: aws.String(fileSystemId),
+	})
+	require.NoError(t, err, "Failed to describe EFS file system")
+	require.NotEmpty(t, fileSystem.FileSystems, "No file systems returned from AWS")
+
+	awsFileSystem := fileSystem.FileSystems[0]
+
+	t.Run("TestFileSystemId", func(t *testing.T) {
+		testFileSystemId(t, &awsFileSystem, fileSystemId)
 	})
 
-	t.Run("TestArnMatches", func(t *testing.T) {
-		testArnMatches(t, callerIdentity, arn)
+	t.Run("TestFileSystemArn", func(t *testing.T) {
+		testFileSystemArn(t, &awsFileSystem, fileSystemArn)
 	})
 
-	t.Run("TestHelloMessage", func(t *testing.T) {
-		testHelloMessage(t, helloMessage)
+	t.Run("TestFileSystemDnsName", func(t *testing.T) {
+		testFileSystemDnsName(t, fileSystemId, fileSystemDnsName)
+	})
+
+	t.Run("TestFileSystemCreationToken", func(t *testing.T) {
+		testFileSystemCreationToken(t, &awsFileSystem, fileSystemCreationToken)
+	})
+
+	t.Run("TestFileSystemEncryption", func(t *testing.T) {
+		testFileSystemEncryption(t, &awsFileSystem)
+	})
+
+	t.Run("TestFileSystemName", func(t *testing.T) {
+		testFileSystemName(t, &awsFileSystem, fileSystemName)
+	})
+
+	t.Run("TestFileSystemThroughputMode", func(t *testing.T) {
+		testFileSystemThroughputMode(t, &awsFileSystem)
 	})
 }
 
-func testAccountIdMatches(t *testing.T, callerIdentity *sts.GetCallerIdentityOutput, accountId string) {
-	assert.Equal(t, *callerIdentity.Account, accountId, "Account ID from Terraform should match AWS caller identity")
-	assert.NotEmpty(t, accountId, "Account ID should not be empty")
+func testFileSystemId(t *testing.T, awsFileSystem *types.FileSystemDescription, fileSystemId string) {
+	assert.Equal(t, *awsFileSystem.FileSystemId, fileSystemId, "File system ID from Terraform should match AWS")
+	assert.NotEmpty(t, fileSystemId, "File system ID should not be empty")
 
-	// Verify it's a valid 12-digit account ID
-	matched, _ := regexp.MatchString(`^\d{12}$`, accountId)
-	assert.True(t, matched, "Account ID should be a 12-digit number")
+	// Verify it's a valid EFS ID format
+	matched, _ := regexp.MatchString(`^fs-[a-f0-9]+$`, fileSystemId)
+	assert.True(t, matched, "File system ID should match format 'fs-xxxxxxxxx'")
 }
 
-func testArnMatches(t *testing.T, callerIdentity *sts.GetCallerIdentityOutput, arn string) {
-	assert.Equal(t, *callerIdentity.Arn, arn, "ARN from Terraform should match AWS caller identity")
-	assert.NotEmpty(t, arn, "ARN should not be empty")
+func testFileSystemArn(t *testing.T, awsFileSystem *types.FileSystemDescription, fileSystemArn string) {
+	assert.Equal(t, *awsFileSystem.FileSystemArn, fileSystemArn, "File system ARN from Terraform should match AWS")
+	assert.NotEmpty(t, fileSystemArn, "File system ARN should not be empty")
 
 	// Verify it's a valid ARN format
-	matched, _ := regexp.MatchString(`^arn:aws:`, arn)
-	assert.True(t, matched, "ARN should start with 'arn:aws:'")
+	matched, _ := regexp.MatchString(`^arn:aws:elasticfilesystem:`, fileSystemArn)
+	assert.True(t, matched, "ARN should start with 'arn:aws:elasticfilesystem:'")
 }
 
-func testHelloMessage(t *testing.T, helloMessage string) {
-	assert.NotEmpty(t, helloMessage, "Hello message should not be empty")
-	assert.Contains(t, helloMessage, "Hello", "Message should contain 'Hello'")
+func testFileSystemDnsName(t *testing.T, fileSystemId string, fileSystemDnsName string) {
+	assert.NotEmpty(t, fileSystemDnsName, "DNS name should not be empty")
+	assert.Contains(t, fileSystemDnsName, fileSystemId, "DNS name should contain the file system ID")
+	assert.Contains(t, fileSystemDnsName, ".efs.", "DNS name should contain '.efs.'")
+	assert.Contains(t, fileSystemDnsName, ".amazonaws.com", "DNS name should end with '.amazonaws.com'")
 }
 
-func GetAWSSTSClient(t *testing.T) *sts.Client {
-	awsSTSClient := sts.NewFromConfig(GetAWSConfig(t))
-	return awsSTSClient
+func testFileSystemCreationToken(t *testing.T, awsFileSystem *types.FileSystemDescription, fileSystemCreationToken string) {
+	assert.Equal(t, *awsFileSystem.CreationToken, fileSystemCreationToken, "Creation token from Terraform should match AWS")
+	assert.NotEmpty(t, fileSystemCreationToken, "Creation token should not be empty")
+}
+
+func testFileSystemEncryption(t *testing.T, awsFileSystem *types.FileSystemDescription) {
+	assert.NotNil(t, awsFileSystem.Encrypted, "Encrypted field should not be nil")
+	assert.True(t, *awsFileSystem.Encrypted, "File system should be encrypted")
+}
+
+func testFileSystemName(t *testing.T, awsFileSystem *types.FileSystemDescription, fileSystemName string) {
+	assert.NotEmpty(t, fileSystemName, "File system name should not be empty")
+
+	// Verify the Name tag exists in AWS
+	if awsFileSystem.Name != nil {
+		assert.Equal(t, *awsFileSystem.Name, fileSystemName, "File system name from Terraform should match AWS Name tag")
+	}
+}
+
+func testFileSystemThroughputMode(t *testing.T, awsFileSystem *types.FileSystemDescription) {
+	assert.NotNil(t, awsFileSystem.ThroughputMode, "Throughput mode should be set")
+	// Valid values are bursting, provisioned, or elastic
+	validModes := []string{"bursting", "provisioned", "elastic"}
+	assert.Contains(t, validModes, string(awsFileSystem.ThroughputMode), "Throughput mode should be valid")
+}
+
+func GetAWSEFSClient(t *testing.T) *efs.Client {
+	awsEFSClient := efs.NewFromConfig(GetAWSConfig(t))
+	return awsEFSClient
 }
 
 func GetAWSConfig(t *testing.T) (cfg aws.Config) {

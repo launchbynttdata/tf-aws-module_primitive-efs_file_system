@@ -1,53 +1,117 @@
-# tf-aws-module-template
+# tf-aws-module_primitive-efs_file_system
 
-> **🔧 This is a Template Repository**
->
-> Use this template when creating new Terraform primitive modules for AWS resources. This template provides the standardized structure, testing framework, and tooling needed to build high-quality, maintainable primitive modules.
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
 
----
+## Overview
 
-## What is a Primitive Module?
+A Terraform primitive module for creating and managing AWS Elastic File System (EFS) file systems. This module provides a standardized way to create EFS file systems with configurable encryption, performance modes, throughput settings, and lifecycle policies for cost optimization.
 
-A **primitive module** is a thin, focused Terraform wrapper around a single AWS resource type. Primitive modules:
+## Features
 
-- Wrap a **single AWS resource** (e.g., `aws_eks_cluster`, `aws_kms_key`, `aws_s3_bucket`)
-- Provide sensible defaults while maintaining full configurability
-- Include comprehensive validation rules
-- Follow consistent patterns for inputs, outputs, and tagging
-- Include automated testing using Terratest
-- Serve as building blocks for higher-level composite modules
+- **Encryption at Rest**: Supports both AWS managed and customer managed KMS keys
+- **Flexible Storage Options**: Multi-AZ (high availability) or One Zone (cost optimized) storage classes
+- **Performance Modes**: Choose between General Purpose (lower latency) or Max I/O (higher throughput)
+- **Throughput Modes**: Bursting, Elastic (auto-scaling), or Provisioned throughput
+- **Lifecycle Management**: Automated transitions between storage classes (Standard, IA, Archive) for cost optimization
+- **Protection Controls**: Configurable replication overwrite protection
+- **Comprehensive Tagging**: Support for custom tags with automatic ManagedBy tag and optional Name tag
+- **Input Validation**: Built-in validation for performance mode and throughput mode values
 
-For examples of well-structured primitive modules, see:
+## Usage
 
-- [tf-aws-module_primitive-eks_cluster](https://github.com/launchbynttdata/tf-aws-module_primitive-eks_cluster)
-- [tf-aws-module_primitive-kms_key](https://github.com/launchbynttdata/tf-aws-module_primitive-kms_key)
+### Basic Example
 
----
+```hcl
+module "efs" {
+  source = "github.com/launchbynttdata/tf-aws-module_primitive-efs_file_system?ref=1.0.0"
 
-## Getting Started with This Template
+  creation_token = "my-app-efs"
+  name           = "My Application EFS"
+  encrypted      = true
 
-### 1. Create Your New Module Repository
-
-1. Click the "Use this template" button on GitHub
-2. Name your repository following the naming convention: `tf-aws-module_primitive-<resource_name>`
-   - Examples: `tf-aws-module_primitive-s3_bucket`, `tf-aws-module_primitive-lambda_function`
-3. Clone your new repository locally
-
-### 2. Initialize and Clean Up Template References
-
-After cloning, run the cleanup target to update template references with your actual repository information:
-
-```bash
-make init-module
+  tags = {
+    Environment = "production"
+    Application = "my-app"
+  }
+}
 ```
 
-This command will:
+### Complete Example with All Features
 
-- Update the `go.mod` file with your repository's GitHub URL
-- Update test imports to reference your new module name
-- Remove template-specific placeholders
+```hcl
+module "efs" {
+  source = "github.com/launchbynttdata/tf-aws-module_primitive-efs_file_system?ref=1.0.0"
 
-### 3. Configure Your Environment
+  creation_token   = "my-app-efs"
+  name             = "Production EFS"
+  encrypted        = true
+  kms_key_id       = "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012"
+  performance_mode = "generalPurpose"
+  throughput_mode  = "elastic"
+
+  # Cost optimization with lifecycle policies
+  lifecycle_policy = {
+    transition_to_ia                    = "AFTER_30_DAYS"
+    transition_to_primary_storage_class = "AFTER_1_ACCESS"
+    transition_to_archive               = "AFTER_90_DAYS"
+  }
+
+  protection = {
+    replication_overwrite = "DISABLED"
+  }
+
+  tags = {
+    Environment = "production"
+    Application = "my-app"
+    CostCenter  = "engineering"
+  }
+}
+```
+
+### One Zone Storage Example
+
+```hcl
+module "efs_one_zone" {
+  source = "github.com/launchbynttdata/tf-aws-module_primitive-efs_file_system?ref=1.0.0"
+
+  creation_token         = "my-dev-efs"
+  name                   = "Development EFS"
+  availability_zone_name = "us-east-1a"  # Creates One Zone storage
+  encrypted              = true
+  throughput_mode        = "bursting"
+
+  tags = {
+    Environment = "development"
+  }
+}
+```
+
+## Important Notes
+
+### Lifecycle Policy Implementation
+
+This module uses **separate `lifecycle_policy` blocks** for each transition type as required by AWS Provider version 5.100.0. Each transition rule (to IA, to Archive, to Primary Storage) must be defined in its own block. See the [main.tf](main.tf) file for detailed implementation comments.
+
+### Mount Targets
+
+This module creates only the EFS file system resource itself. To mount the file system to EC2 instances or other compute resources, you'll need to create EFS mount targets separately using a mount target module or resource. Mount targets require:
+- VPC subnet IDs
+- Security groups for access control
+- Network connectivity to your compute resources
+
+### Storage Classes and Cost Optimization
+
+- **Standard**: Default storage class for frequently accessed files
+- **Infrequent Access (IA)**: Lower cost for files accessed less frequently
+- **Archive**: Lowest cost for long-term storage, rarely accessed files
+- Use lifecycle policies to automatically transition files between storage classes based on access patterns
+
+### Throughput Modes
+
+- **Bursting**: Throughput scales with file system size (good for baseline workloads)
+- **Elastic**: Automatically scales throughput up/down based on workload (recommended for variable workloads)
+- **Provisioned**: Fixed throughput independent of storage size (use when you need guaranteed throughput)
 
 Install required development dependencies:
 
@@ -443,12 +507,6 @@ Follow the established patterns in existing primitive modules. All modules shoul
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.5 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.100 |
 
-## Providers
-
-| Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.100.0 |
-
 ## Modules
 
 No modules.
@@ -457,19 +515,36 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+| [aws_efs_file_system.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/efs_file_system) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_hello_message"></a> [hello\_message](#input\_hello\_message) | A friendly hello message. | `string` | `"Hello, Terraform!"` | no |
+| <a name="input_creation_token"></a> [creation\_token](#input\_creation\_token) | A unique name used as reference when creating the EFS | `string` | n/a | yes |
+| <a name="input_name"></a> [name](#input\_name) | Optional name for the EFS file system. If provided, will be added as a 'Name' tag | `string` | `null` | no |
+| <a name="input_availability_zone_name"></a> [availability\_zone\_name](#input\_availability\_zone\_name) | The AWS Availability Zone in which to create the file system. Used to create a file system that uses One Zone storage classes. If omitted, Multi-AZ storage will be used | `string` | `null` | no |
+| <a name="input_encrypted"></a> [encrypted](#input\_encrypted) | If true, the disk will be encrypted | `bool` | `true` | no |
+| <a name="input_kms_key_id"></a> [kms\_key\_id](#input\_kms\_key\_id) | ARN for the KMS encryption key. If set, the EFS file system will be encrypted at rest using this key | `string` | `null` | no |
+| <a name="input_performance_mode"></a> [performance\_mode](#input\_performance\_mode) | The file system performance mode. Can be either 'generalPurpose' or 'maxIO'. Default is 'generalPurpose' | `string` | `"generalPurpose"` | no |
+| <a name="input_throughput_mode"></a> [throughput\_mode](#input\_throughput\_mode) | Throughput mode for the file system. Valid values: 'bursting', 'provisioned', or 'elastic'. When using 'provisioned', also set provisioned\_throughput\_in\_mibps | `string` | `"bursting"` | no |
+| <a name="input_provisioned_throughput_in_mibps"></a> [provisioned\_throughput\_in\_mibps](#input\_provisioned\_throughput\_in\_mibps) | The throughput, measured in MiB/s, that you want to provision for the file system. Only applicable when throughput\_mode is set to 'provisioned' | `number` | `null` | no |
+| <a name="input_lifecycle_policy"></a> [lifecycle\_policy](#input\_lifecycle\_policy) | Lifecycle policy for the file system. Supports transition\_to\_ia (AFTER\_7\_DAYS, AFTER\_14\_DAYS, AFTER\_30\_DAYS, AFTER\_60\_DAYS, AFTER\_90\_DAYS, AFTER\_1\_DAY, AFTER\_180\_DAYS, AFTER\_270\_DAYS, AFTER\_365\_DAYS), transition\_to\_primary\_storage\_class (AFTER\_1\_ACCESS), and transition\_to\_archive (AFTER\_1\_DAY, AFTER\_7\_DAYS, AFTER\_14\_DAYS, AFTER\_30\_DAYS, AFTER\_60\_DAYS, AFTER\_90\_DAYS, AFTER\_180\_DAYS, AFTER\_270\_DAYS, AFTER\_365\_DAYS) | <pre>object({<br/>    transition_to_ia                    = optional(string)<br/>    transition_to_primary_storage_class = optional(string)<br/>    transition_to_archive               = optional(string)<br/>  })</pre> | `null` | no |
+| <a name="input_protection"></a> [protection](#input\_protection) | Protection configuration for the file system. Supports replication\_overwrite (ENABLED, DISABLED, REPLICATING) | <pre>object({<br/>    replication_overwrite = optional(string)<br/>  })</pre> | `null` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to the EFS file system | `map(string)` | `{}` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| <a name="output_account_id"></a> [account\_id](#output\_account\_id) | n/a |
-| <a name="output_arn"></a> [arn](#output\_arn) | n/a |
-| <a name="output_hello_message"></a> [hello\_message](#output\_hello\_message) | n/a |
+| <a name="output_file_system_id"></a> [file\_system\_id](#output\_file\_system\_id) | The ID of the EFS file system |
+| <a name="output_file_system_arn"></a> [file\_system\_arn](#output\_file\_system\_arn) | Amazon Resource Name of the file system |
+| <a name="output_file_system_dns_name"></a> [file\_system\_dns\_name](#output\_file\_system\_dns\_name) | The DNS name for the filesystem |
+| <a name="output_file_system_creation_token"></a> [file\_system\_creation\_token](#output\_file\_system\_creation\_token) | The creation token of the EFS file system |
+| <a name="output_file_system_availability_zone_id"></a> [file\_system\_availability\_zone\_id](#output\_file\_system\_availability\_zone\_id) | The identifier of the Availability Zone in which the file system's One Zone storage classes exist |
+| <a name="output_file_system_availability_zone_name"></a> [file\_system\_availability\_zone\_name](#output\_file\_system\_availability\_zone\_name) | The Availability Zone name in which the file system's One Zone storage classes exist |
+| <a name="output_file_system_number_of_mount_targets"></a> [file\_system\_number\_of\_mount\_targets](#output\_file\_system\_number\_of\_mount\_targets) | The current number of mount targets that the file system has |
+| <a name="output_file_system_owner_id"></a> [file\_system\_owner\_id](#output\_file\_system\_owner\_id) | The AWS account that created the file system |
+| <a name="output_file_system_size_in_bytes"></a> [file\_system\_size\_in\_bytes](#output\_file\_system\_size\_in\_bytes) | The latest known metered size (in bytes) of data stored in the file system |
+| <a name="output_file_system_name"></a> [file\_system\_name](#output\_file\_system\_name) | The value of the file system's Name tag |
 <!-- END_TF_DOCS -->

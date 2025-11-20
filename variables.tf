@@ -3,21 +3,32 @@ variable "creation_token" {
   type        = string
 }
 
+variable "name" {
+  description = "Optional name for the EFS file system. If provided, will be added as a 'Name' tag"
+  type        = string
+  default     = null
+}
+
+variable "availability_zone_name" {
+  description = "The AWS Availability Zone in which to create the file system. Used to create a file system that uses One Zone storage classes. If omitted, Multi-AZ storage will be used"
+  type        = string
+  default     = null
+}
+
 variable "encrypted" {
   description = "If true, the disk will be encrypted"
   type        = bool
   default     = true
 }
 
-
 variable "kms_key_id" {
-  description = "ARN for the KMS encryption key. Required if encrypted is true"
+  description = "ARN for the KMS encryption key. If set, the EFS file system will be encrypted at rest using this key"
   type        = string
   default     = null
 }
 
 variable "performance_mode" {
-  description = "The file system performance mode"
+  description = "The file system performance mode. Can be either 'generalPurpose' or 'maxIO'. Default is 'generalPurpose'"
   type        = string
   default     = "generalPurpose"
   validation {
@@ -27,13 +38,37 @@ variable "performance_mode" {
 }
 
 variable "throughput_mode" {
-  description = "Throughput mode for the file system"
+  description = "Throughput mode for the file system. Valid values: 'bursting', 'provisioned', or 'elastic'. When using 'provisioned', also set provisioned_throughput_in_mibps"
   type        = string
   default     = "bursting"
   validation {
-    condition     = contains(["bursting", "provisioned"], var.throughput_mode)
-    error_message = "Throughput mode must be either 'bursting' or 'provisioned'."
+    condition     = contains(["bursting", "provisioned", "elastic"], var.throughput_mode)
+    error_message = "Throughput mode must be 'bursting', 'provisioned', or 'elastic'."
   }
+}
+
+variable "provisioned_throughput_in_mibps" {
+  description = "The throughput, measured in MiB/s, that you want to provision for the file system. Only applicable when throughput_mode is set to 'provisioned'"
+  type        = number
+  default     = null
+}
+
+variable "lifecycle_policy" {
+  description = "Lifecycle policy for the file system. Supports transition_to_ia (AFTER_7_DAYS, AFTER_14_DAYS, AFTER_30_DAYS, AFTER_60_DAYS, AFTER_90_DAYS, AFTER_1_DAY, AFTER_180_DAYS, AFTER_270_DAYS, AFTER_365_DAYS), transition_to_primary_storage_class (AFTER_1_ACCESS), and transition_to_archive (AFTER_1_DAY, AFTER_7_DAYS, AFTER_14_DAYS, AFTER_30_DAYS, AFTER_60_DAYS, AFTER_90_DAYS, AFTER_180_DAYS, AFTER_270_DAYS, AFTER_365_DAYS)"
+  type = object({
+    transition_to_ia                    = optional(string)
+    transition_to_primary_storage_class = optional(string)
+    transition_to_archive               = optional(string)
+  })
+  default = null
+}
+
+variable "protection" {
+  description = "Protection configuration for the file system. Supports replication_overwrite (ENABLED, DISABLED, REPLICATING)"
+  type = object({
+    replication_overwrite = optional(string)
+  })
+  default = null
 }
 
 variable "tags" {
