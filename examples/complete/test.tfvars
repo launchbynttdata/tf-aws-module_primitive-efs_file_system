@@ -13,7 +13,7 @@ region                  = "us-west-2"
 # Resource names map for generating standardized names
 resource_names_map = {
   efs = {
-    name       = "efs"
+    name       = "fs"
     max_length = 60
   }
 }

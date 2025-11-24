@@ -58,12 +58,12 @@ module "efs_complete" {
 
   # Unique identifier for the EFS file system within AWS account and region
   # Uses var.creation_token if provided, otherwise uses the EFS name
-  creation_token = local.creation_token
+  creation_token = var.creation_token != null ? var.creation_token : module.resource_names["efs"].standard
 
   # Friendly name for AWS Console identification
   # Automatically creates a 'Name' tag
   # Uses var.name if provided, otherwise uses generated name from resource_names module
-  name = local.efs_name
+  name = var.name != null ? var.name : module.resource_names["efs"].standard
 
   # Optional: Specify an Availability Zone for One Zone storage class
   # Leave null (default) for Multi-AZ storage with high availability

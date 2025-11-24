@@ -12,7 +12,7 @@ region                  = "us-west-2"
 # Resource names map for generating standardized names
 resource_names_map = {
   efs = {
-    name       = "efs"
+    name       = "fs"
     max_length = 60
   }
 }
@@ -20,12 +20,12 @@ resource_names_map = {
 # Unique identifier for the EFS file system
 # This should be unique within your AWS account and region
 # Commented out to use generated name from resource_names module
-# creation_token = "my-test-efs"
+creation_token = "simple-efs-example"
 
 # (Optional) Friendly name for the EFS file system
 # Will be added as a 'Name' tag for easier identification in the AWS console
 # Commented out to use generated name from resource_names module
-# name = "Simple EFS Example"
+name = "Simple EFS Example"
 
 # Enable encryption at rest for the EFS file system
 # Set to false if encryption is not required (not recommended for production)
