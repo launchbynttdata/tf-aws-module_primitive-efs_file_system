@@ -53,13 +53,13 @@ module "efs" {
 
   # Unique identifier for the EFS file system
   # Must be unique within your AWS account and region
-  # Uses generated name from resource_names module if available, otherwise uses var.creation_token
-  creation_token = try(module.resource_names["efs"].standard, var.creation_token)
+  # Uses var.creation_token if provided, otherwise uses generated name from resource_names module
+  creation_token = try(var.creation_token, module.resource_names["efs"].standard)
 
   # Optional friendly name that appears in AWS Console
   # Creates a 'Name' tag automatically
-  # Uses generated name from resource_names module if available, otherwise uses var.name
-  name = try(module.resource_names["efs"].standard, var.name)
+  # Uses var.name if provided, otherwise uses generated name from resource_names module
+  name = try(var.name, module.resource_names["efs"].standard)
 
   # Enable encryption at rest using AWS managed key
   # Set to false only if encryption is not required (not recommended)
