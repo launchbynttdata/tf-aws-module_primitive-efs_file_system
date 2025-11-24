@@ -44,25 +44,26 @@ module "resource_names" {
 
   logical_product_family  = var.logical_product_family
   logical_product_service = var.logical_product_service
-  region                  = var.region
+  region                  = join("", split("-", var.region))
   class_env               = var.class_env
   cloud_resource_type     = each.value.name
   instance_env            = var.instance_env
-  maximum_length          = each.value.max_length
   instance_resource       = var.instance_resource
+  maximum_length          = each.value.max_length
 }
+
 
 module "efs_complete" {
   source = "../../"
 
   # Unique identifier for the EFS file system within AWS account and region
-  # Uses var.creation_token if provided, otherwise uses generated name from resource_names module
-  creation_token = try(var.creation_token, module.resource_names["efs"].standard)
+  # Uses var.creation_token if provided, otherwise uses the EFS name
+  creation_token = local.creation_token
 
   # Friendly name for AWS Console identification
   # Automatically creates a 'Name' tag
   # Uses var.name if provided, otherwise uses generated name from resource_names module
-  name = try(var.name, module.resource_names["efs"].standard)
+  name = local.efs_name
 
   # Optional: Specify an Availability Zone for One Zone storage class
   # Leave null (default) for Multi-AZ storage with high availability

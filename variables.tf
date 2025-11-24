@@ -1,12 +1,19 @@
 variable "creation_token" {
-  description = "A unique name used as reference when creating the EFS"
+  description = "Required unique identifier for the EFS file system. Must be unique within your AWS account and region and cannot be empty"
   type        = string
+  validation {
+    condition     = var.creation_token != null && var.creation_token != ""
+    error_message = "Creation token is required and cannot be empty."
+  }
 }
 
 variable "name" {
-  description = "Optional name for the EFS file system. If provided, will be added as a 'Name' tag"
+  description = "Required friendly name for the EFS file system. Will be added as a 'Name' tag and cannot be empty"
   type        = string
-  default     = null
+  validation {
+    condition     = var.name != null && var.name != ""
+    error_message = "Name is required and cannot be empty."
+  }
 }
 
 variable "availability_zone_name" {
@@ -28,7 +35,7 @@ variable "kms_key_id" {
 }
 
 variable "performance_mode" {
-  description = "The file system performance mode. Can be either 'generalPurpose' or 'maxIO'. Default is 'generalPurpose'"
+  description = "The file system performance mode. Valid values: 'generalPurpose' (default, lower latency for most workloads) or 'maxIO' (higher aggregate throughput for highly parallelized workloads)"
   type        = string
   default     = "generalPurpose"
   validation {
@@ -38,7 +45,7 @@ variable "performance_mode" {
 }
 
 variable "throughput_mode" {
-  description = "Throughput mode for the file system. Valid values: 'bursting', 'provisioned', or 'elastic'. When using 'provisioned', also set provisioned_throughput_in_mibps"
+  description = "Throughput mode for the file system. Valid values: 'bursting' (scales with file system size), 'elastic' (automatically scales based on workload), or 'provisioned' (fixed throughput - requires provisioned_throughput_in_mibps to be set)"
   type        = string
   default     = "bursting"
   validation {

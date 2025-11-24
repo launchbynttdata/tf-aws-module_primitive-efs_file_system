@@ -10,7 +10,7 @@
 # - Automated lifecycle management for cost optimization
 # - Replication protection controls
 resource "aws_efs_file_system" "this" {
-  # Unique identifier for the file system within the AWS account and region
+  # Required unique identifier for the file system within the AWS account and region
   creation_token = var.creation_token
 
   # Optional: Specify an Availability Zone for One Zone storage (lower cost, single AZ)

@@ -156,12 +156,12 @@ No resources.
 | <a name="input_instance_resource"></a> [instance\_resource](#input\_instance\_resource) | Resource instance number for naming convention | `number` | n/a | yes |
 | <a name="input_region"></a> [region](#input\_region) | AWS region for naming convention | `string` | n/a | yes |
 | <a name="input_resource_names_map"></a> [resource\_names\_map](#input\_resource\_names\_map) | Map of resource types to their configurations for name generation | <pre>map(object({<br/>    name       = string<br/>    max_length = optional(number, 60)<br/>  }))</pre> | `{}` | no |
-| <a name="input_creation_token"></a> [creation\_token](#input\_creation\_token) | A unique name used as reference when creating the EFS. If null, will use generated name from resource\_names module | `string` | `null` | no |
-| <a name="input_name"></a> [name](#input\_name) | Optional name for the EFS file system. If provided, will be added as a 'Name' tag. If null, will use generated name from resource\_names module | `string` | `null` | no |
+| <a name="input_creation_token"></a> [creation\_token](#input\_creation\_token) | Optional unique identifier for the EFS file system. If not provided, will use the generated or provided name value | `string` | `null` | no |
+| <a name="input_name"></a> [name](#input\_name) | Optional name for the EFS file system. If not provided, a generated name from resource\_names module will be used | `string` | `null` | no |
 | <a name="input_encrypted"></a> [encrypted](#input\_encrypted) | If true, the disk will be encrypted | `bool` | `true` | no |
 | <a name="input_kms_key_id"></a> [kms\_key\_id](#input\_kms\_key\_id) | ARN for the KMS encryption key. Required if encrypted is true | `string` | `null` | no |
-| <a name="input_performance_mode"></a> [performance\_mode](#input\_performance\_mode) | The file system performance mode | `string` | `"generalPurpose"` | no |
-| <a name="input_throughput_mode"></a> [throughput\_mode](#input\_throughput\_mode) | Throughput mode for the file system | `string` | `"bursting"` | no |
+| <a name="input_performance_mode"></a> [performance\_mode](#input\_performance\_mode) | The file system performance mode. Valid values: 'generalPurpose' (default, lower latency) or 'maxIO' (higher aggregate throughput) | `string` | `"generalPurpose"` | no |
+| <a name="input_throughput_mode"></a> [throughput\_mode](#input\_throughput\_mode) | Throughput mode for the file system. Valid values: 'bursting' (scales with file system size), 'elastic' (auto-scaling), or 'provisioned' (fixed throughput) | `string` | `"bursting"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to the EFS file system | `map(string)` | <pre>{<br/>  "Environment": "dev",<br/>  "Example": "simple"<br/>}</pre> | no |
 
 ## Outputs

@@ -51,13 +51,13 @@ variable "resource_names_map" {
 }
 
 variable "creation_token" {
-  description = "A unique name used as reference when creating the EFS. If null, will use generated name from resource_names module"
+  description = "Optional unique identifier for the EFS file system. If not provided, will use the generated or provided name value"
   type        = string
   default     = null
 }
 
 variable "name" {
-  description = "Optional name for the EFS file system. If provided, will be added as a 'Name' tag. If null, will use generated name from resource_names module"
+  description = "Optional name for the EFS file system. If not provided, a generated name from resource_names module will be used"
   type        = string
   default     = null
 }
@@ -75,13 +75,13 @@ variable "kms_key_id" {
 }
 
 variable "performance_mode" {
-  description = "The file system performance mode"
+  description = "The file system performance mode. Valid values: 'generalPurpose' (default, lower latency) or 'maxIO' (higher aggregate throughput)"
   type        = string
   default     = "generalPurpose"
 }
 
 variable "throughput_mode" {
-  description = "Throughput mode for the file system"
+  description = "Throughput mode for the file system. Valid values: 'bursting' (scales with file system size), 'elastic' (auto-scaling), or 'provisioned' (fixed throughput)"
   type        = string
   default     = "bursting"
 }
