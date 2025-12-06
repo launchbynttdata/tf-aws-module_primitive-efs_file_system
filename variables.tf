@@ -60,8 +60,32 @@ variable "provisioned_throughput_in_mibps" {
   default     = null
 }
 
+# Lifecycle policy for the file system.
+# Supported values:
+#   transition_to_ia:
+#     - AFTER_1_DAY
+#     - AFTER_7_DAYS
+#     - AFTER_14_DAYS
+#     - AFTER_30_DAYS
+#     - AFTER_60_DAYS
+#     - AFTER_90_DAYS
+#     - AFTER_180_DAYS
+#     - AFTER_270_DAYS
+#     - AFTER_365_DAYS
+#   transition_to_primary_storage_class:
+#     - AFTER_1_ACCESS
+#   transition_to_archive:
+#     - AFTER_1_DAY
+#     - AFTER_7_DAYS
+#     - AFTER_14_DAYS
+#     - AFTER_30_DAYS
+#     - AFTER_60_DAYS
+#     - AFTER_90_DAYS
+#     - AFTER_180_DAYS
+#     - AFTER_270_DAYS
+#     - AFTER_365_DAYS
 variable "lifecycle_policy" {
-  description = "Lifecycle policy for the file system. Supports transition_to_ia (AFTER_7_DAYS, AFTER_14_DAYS, AFTER_30_DAYS, AFTER_60_DAYS, AFTER_90_DAYS, AFTER_1_DAY, AFTER_180_DAYS, AFTER_270_DAYS, AFTER_365_DAYS), transition_to_primary_storage_class (AFTER_1_ACCESS), and transition_to_archive (AFTER_1_DAY, AFTER_7_DAYS, AFTER_14_DAYS, AFTER_30_DAYS, AFTER_60_DAYS, AFTER_90_DAYS, AFTER_180_DAYS, AFTER_270_DAYS, AFTER_365_DAYS)"
+  description = "Lifecycle policy for the file system."
   type = object({
     transition_to_ia                    = optional(string)
     transition_to_primary_storage_class = optional(string)

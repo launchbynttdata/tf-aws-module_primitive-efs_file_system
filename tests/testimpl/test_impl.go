@@ -78,7 +78,8 @@ func testFileSystemArn(t *testing.T, awsFileSystem *types.FileSystemDescription,
 	assert.NotEmpty(t, fileSystemArn, "File system ARN should not be empty")
 
 	// Verify it's a valid ARN format
-	matched, _ := regexp.MatchString(`^arn:aws:elasticfilesystem:`, fileSystemArn)
+	matched, err := regexp.MatchString(`^arn:aws:elasticfilesystem:`, fileSystemArn)
+	require.NoError(t, err, "Regex match for ARN failed")
 	assert.True(t, matched, "ARN should start with 'arn:aws:elasticfilesystem:'")
 }
 
