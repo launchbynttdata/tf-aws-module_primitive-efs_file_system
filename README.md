@@ -18,6 +18,26 @@ A Terraform primitive module for creating and managing AWS Elastic File System (
 - **Comprehensive Tagging**: Support for custom tags with automatic ManagedBy tag and optional Name tag
 - **Input Validation**: Built-in validation for performance mode and throughput mode values
 
+## Recent Changes
+
+### Output Optimization (Breaking Change)
+To prevent idempotency issues when this module is used in collection modules, the following computed/dynamic outputs have been removed:
+- `file_system_availability_zone_id`
+- `file_system_availability_zone_name`
+- `file_system_number_of_mount_targets`
+- `file_system_owner_id`
+- `file_system_size_in_bytes`
+
+These values change independently of input variables and can cause unnecessary plan differences in parent modules. If you need these values, query them directly using the AWS SDK or CLI after resource creation.
+
+### Dependency Updates
+- **Go**: Updated to version 1.25.4
+- **AWS SDK for Go v2**: Updated to latest versions for improved performance and security
+  - `aws-sdk-go-v2` v1.40.1
+  - `aws-sdk-go-v2/service/efs` v1.41.7
+- **Terratest**: Updated to v0.54.0
+- **LCAF Testing Library**: Updated to v1.0.4
+
 ## Usage
 
 ### Basic Example
@@ -391,6 +411,7 @@ terraform destroy -var-file=test.tfvars
 - Use clear, descriptive output names.
 - Include descriptions for all outputs.
 - Consider downstream module needs.
+- **Avoid computed/dynamic outputs** that change independently of input changes, as these can cause idempotency issues when this module is used in collection modules. Only expose static outputs that are directly derived from input variables.
 
 ### Tags
 
@@ -541,10 +562,5 @@ No modules.
 | <a name="output_file_system_arn"></a> [file\_system\_arn](#output\_file\_system\_arn) | Amazon Resource Name of the file system |
 | <a name="output_file_system_dns_name"></a> [file\_system\_dns\_name](#output\_file\_system\_dns\_name) | The DNS name for the filesystem |
 | <a name="output_file_system_creation_token"></a> [file\_system\_creation\_token](#output\_file\_system\_creation\_token) | The creation token of the EFS file system |
-| <a name="output_file_system_availability_zone_id"></a> [file\_system\_availability\_zone\_id](#output\_file\_system\_availability\_zone\_id) | The identifier of the Availability Zone in which the file system's One Zone storage classes exist |
-| <a name="output_file_system_availability_zone_name"></a> [file\_system\_availability\_zone\_name](#output\_file\_system\_availability\_zone\_name) | The Availability Zone name in which the file system's One Zone storage classes exist |
-| <a name="output_file_system_number_of_mount_targets"></a> [file\_system\_number\_of\_mount\_targets](#output\_file\_system\_number\_of\_mount\_targets) | The current number of mount targets that the file system has |
-| <a name="output_file_system_owner_id"></a> [file\_system\_owner\_id](#output\_file\_system\_owner\_id) | The AWS account that created the file system |
-| <a name="output_file_system_size_in_bytes"></a> [file\_system\_size\_in\_bytes](#output\_file\_system\_size\_in\_bytes) | The latest known metered size (in bytes) of data stored in the file system |
 | <a name="output_file_system_name"></a> [file\_system\_name](#output\_file\_system\_name) | The value of the file system's Name tag |
 <!-- END_TF_DOCS -->
