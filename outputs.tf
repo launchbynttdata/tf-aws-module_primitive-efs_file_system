@@ -30,6 +30,16 @@ output "file_system_creation_token" {
   value       = aws_efs_file_system.this.creation_token
 }
 
+output "file_system_availability_zone_id" {
+  description = "The identifier of the Availability Zone in which the file system's One Zone storage classes exist"
+  value       = aws_efs_file_system.this.availability_zone_id
+}
+
+output "file_system_availability_zone_name" {
+  description = "The Availability Zone name in which the file system's One Zone storage classes exist"
+  value       = aws_efs_file_system.this.availability_zone_name
+}
+
 output "file_system_name" {
   description = "The value of the file system's Name tag"
   value       = aws_efs_file_system.this.name
