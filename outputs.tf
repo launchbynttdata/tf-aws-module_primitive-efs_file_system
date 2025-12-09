@@ -1,3 +1,15 @@
+# EFS File System Outputs
+#
+# Note: This module intentionally exposes only static outputs that are directly derived from
+# input variables or guaranteed to be available at plan time. Dynamic/computed outputs such as
+# availability_zone_id, availability_zone_name, number_of_mount_targets, owner_id, and
+# size_in_bytes have been removed because they can cause idempotency issues when this primitive
+# module is used in collection modules. These computed values change independently of input
+# changes and can trigger unnecessary plan differences in parent modules.
+#
+# If you need access to these dynamic values, you can query them directly using the AWS SDK
+# or AWS CLI after the resource is created, rather than exposing them as module outputs.
+
 output "file_system_id" {
   description = "The ID of the EFS file system"
   value       = aws_efs_file_system.this.id
@@ -26,21 +38,6 @@ output "file_system_availability_zone_id" {
 output "file_system_availability_zone_name" {
   description = "The Availability Zone name in which the file system's One Zone storage classes exist"
   value       = aws_efs_file_system.this.availability_zone_name
-}
-
-output "file_system_number_of_mount_targets" {
-  description = "The current number of mount targets that the file system has"
-  value       = aws_efs_file_system.this.number_of_mount_targets
-}
-
-output "file_system_owner_id" {
-  description = "The AWS account that created the file system"
-  value       = aws_efs_file_system.this.owner_id
-}
-
-output "file_system_size_in_bytes" {
-  description = "The latest known metered size (in bytes) of data stored in the file system"
-  value       = aws_efs_file_system.this.size_in_bytes
 }
 
 output "file_system_name" {

@@ -18,6 +18,26 @@ A Terraform primitive module for creating and managing AWS Elastic File System (
 - **Comprehensive Tagging**: Support for custom tags with automatic ManagedBy tag and optional Name tag
 - **Input Validation**: Built-in validation for performance mode and throughput mode values
 
+## Recent Changes
+
+### Output Optimization (Breaking Change)
+To prevent idempotency issues when this module is used in collection modules, the following computed/dynamic outputs have been removed:
+- `file_system_availability_zone_id`
+- `file_system_availability_zone_name`
+- `file_system_number_of_mount_targets`
+- `file_system_owner_id`
+- `file_system_size_in_bytes`
+
+These values change independently of input variables and can cause unnecessary plan differences in parent modules. If you need these values, query them directly using the AWS SDK or CLI after resource creation.
+
+### Dependency Updates
+- **Go**: Updated to version 1.25.4
+- **AWS SDK for Go v2**: Updated to latest versions for improved performance and security
+  - `aws-sdk-go-v2` v1.40.1
+  - `aws-sdk-go-v2/service/efs` v1.41.7
+- **Terratest**: Updated to v0.54.0
+- **LCAF Testing Library**: Updated to v1.0.4
+
 ## Usage
 
 ### Basic Example
@@ -391,6 +411,7 @@ terraform destroy -var-file=test.tfvars
 - Use clear, descriptive output names.
 - Include descriptions for all outputs.
 - Consider downstream module needs.
+- **Avoid computed/dynamic outputs** that change independently of input changes, as these can cause idempotency issues when this module is used in collection modules. Only expose static outputs that are directly derived from input variables.
 
 ### Tags
 
@@ -529,7 +550,7 @@ No modules.
 | <a name="input_performance_mode"></a> [performance\_mode](#input\_performance\_mode) | The file system performance mode. Valid values: 'generalPurpose' (default, lower latency for most workloads) or 'maxIO' (higher aggregate throughput for highly parallelized workloads) | `string` | `"generalPurpose"` | no |
 | <a name="input_throughput_mode"></a> [throughput\_mode](#input\_throughput\_mode) | Throughput mode for the file system. Valid values: 'bursting' (scales with file system size), 'elastic' (automatically scales based on workload), or 'provisioned' (fixed throughput - requires provisioned\_throughput\_in\_mibps to be set) | `string` | `"bursting"` | no |
 | <a name="input_provisioned_throughput_in_mibps"></a> [provisioned\_throughput\_in\_mibps](#input\_provisioned\_throughput\_in\_mibps) | The throughput, measured in MiB/s, that you want to provision for the file system. Only applicable when throughput\_mode is set to 'provisioned' | `number` | `null` | no |
-| <a name="input_lifecycle_policy"></a> [lifecycle\_policy](#input\_lifecycle\_policy) | Lifecycle policy for the file system. Supports transition\_to\_ia (AFTER\_7\_DAYS, AFTER\_14\_DAYS, AFTER\_30\_DAYS, AFTER\_60\_DAYS, AFTER\_90\_DAYS, AFTER\_1\_DAY, AFTER\_180\_DAYS, AFTER\_270\_DAYS, AFTER\_365\_DAYS), transition\_to\_primary\_storage\_class (AFTER\_1\_ACCESS), and transition\_to\_archive (AFTER\_1\_DAY, AFTER\_7\_DAYS, AFTER\_14\_DAYS, AFTER\_30\_DAYS, AFTER\_60\_DAYS, AFTER\_90\_DAYS, AFTER\_180\_DAYS, AFTER\_270\_DAYS, AFTER\_365\_DAYS) | <pre>object({<br/>    transition_to_ia                    = optional(string)<br/>    transition_to_primary_storage_class = optional(string)<br/>    transition_to_archive               = optional(string)<br/>  })</pre> | `null` | no |
+| <a name="input_lifecycle_policy"></a> [lifecycle\_policy](#input\_lifecycle\_policy) | Lifecycle policy for the file system. | <pre>object({<br/>    transition_to_ia                    = optional(string)<br/>    transition_to_primary_storage_class = optional(string)<br/>    transition_to_archive               = optional(string)<br/>  })</pre> | `null` | no |
 | <a name="input_protection"></a> [protection](#input\_protection) | Protection configuration for the file system. Supports replication\_overwrite (ENABLED, DISABLED, REPLICATING) | <pre>object({<br/>    replication_overwrite = optional(string)<br/>  })</pre> | `null` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to the EFS file system | `map(string)` | `{}` | no |
 
@@ -543,8 +564,5 @@ No modules.
 | <a name="output_file_system_creation_token"></a> [file\_system\_creation\_token](#output\_file\_system\_creation\_token) | The creation token of the EFS file system |
 | <a name="output_file_system_availability_zone_id"></a> [file\_system\_availability\_zone\_id](#output\_file\_system\_availability\_zone\_id) | The identifier of the Availability Zone in which the file system's One Zone storage classes exist |
 | <a name="output_file_system_availability_zone_name"></a> [file\_system\_availability\_zone\_name](#output\_file\_system\_availability\_zone\_name) | The Availability Zone name in which the file system's One Zone storage classes exist |
-| <a name="output_file_system_number_of_mount_targets"></a> [file\_system\_number\_of\_mount\_targets](#output\_file\_system\_number\_of\_mount\_targets) | The current number of mount targets that the file system has |
-| <a name="output_file_system_owner_id"></a> [file\_system\_owner\_id](#output\_file\_system\_owner\_id) | The AWS account that created the file system |
-| <a name="output_file_system_size_in_bytes"></a> [file\_system\_size\_in\_bytes](#output\_file\_system\_size\_in\_bytes) | The latest known metered size (in bytes) of data stored in the file system |
 | <a name="output_file_system_name"></a> [file\_system\_name](#output\_file\_system\_name) | The value of the file system's Name tag |
 <!-- END_TF_DOCS -->
