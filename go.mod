@@ -3,7 +3,7 @@ module github.com/launchbynttdata/tf-aws-module_primitive-efs_file_system
 go 1.25.4
 
 require (
-	github.com/aws/aws-sdk-go-v2 v1.40.1
+	github.com/aws/aws-sdk-go-v2 v1.41.1
 	github.com/aws/aws-sdk-go-v2/config v1.32.3
 	github.com/aws/aws-sdk-go-v2/service/efs v1.41.7
 	github.com/gruntwork-io/terratest v0.54.0
