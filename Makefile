@@ -1,4 +1,3 @@
-
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -57,7 +56,6 @@ GIT_EMAIL_SET = $(shell git config --get user.email > /dev/null 2>&1; echo $$?)
 .PHONY: configure-git-hooks
 configure-git-hooks: configure-dependencies
 ifeq ($(PYTHON3_INSTALLED), 0)
-	@test -L /usr/bin/python || sudo ln -s /usr/bin/python3 /usr/bin/python
 	pre-commit install
 else
 	$(error Missing python3, which is required for pre-commit. Install python3 and rerun.)
@@ -132,42 +130,3 @@ init-clean:
 ifneq (,$(wildcard ./TEMPLATED_README.md))
 	mv TEMPLATED_README.md README.MD
 endif
-
-
-.PHONY: init-module
-init-module:
-	@echo "Initializing module from template..."
-	@REPO_URL=$$(git config --get remote.origin.url); \
-	if [ -z "$$REPO_URL" ]; then \
-		echo "Error: Could not determine git repository URL. Make sure this is a git repository with a remote origin."; \
-		exit 1; \
-	fi; \
-	echo "Repository URL: $$REPO_URL"; \
-	REPO_PATH=$$(echo $$REPO_URL | sed -E 's#(https://|git@)##' | sed -E 's#:#/#' | sed -E 's#\.git$$##'); \
-	echo "Repository Path: $$REPO_PATH"; \
-	MODULE_NAME=$$(basename $$REPO_URL .git); \
-	echo "Module Name: $$MODULE_NAME"; \
-	echo "Updating go.mod..."; \
-	sed -i.bak "s#github.com/launchbynttdata/tf-aws-module-template#$$REPO_PATH#g" go.mod && rm go.mod.bak; \
-	echo "Updating test files..."; \
-	find tests -type f -name "*.go" -exec sed -i.bak "s#github.com/launchbynttdata/tf-aws-module-template#$$REPO_PATH#g" {} \; -exec rm {}.bak \;; \
-	echo "Running go mod tidy..."; \
-	go mod tidy; \
-	echo ""; \
-	echo "Removing detect-secrets baseline..."; \
-	rm -f .secrets.baseline; \
-	echo "✅ Module initialization complete!"; \
-	echo ""; \
-	echo "Next steps:"; \
-	echo "  1. Review and update the module files (main.tf, variables.tf, outputs.tf)"; \
-	echo "  2. Update the examples in the examples/ directory"; \
-	echo "  3. Update test implementations in tests/testimpl/"; \
-	echo "  4. Run 'make configure' to set up your development environment"; \
-	echo "  5. Run 'make check' to validate your changes"
-
-.PHONY: secrets-baseline
-secrets-baseline:
-	@echo "Creating new detect-secrets baseline..."
-	detect-secrets scan > .secrets.baseline
-	@echo "✅ Secrets baseline created successfully!"
-	@echo "Review .secrets.baseline to ensure no false positives are included."
