@@ -20,11 +20,11 @@ func TestComposableComplete(t *testing.T, ctx testTypes.TestContext) {
 	efsClient := GetAWSEFSClient(t)
 
 	// Get outputs from Terraform
-	fileSystemId := terraform.Output(t, ctx.TerratestTerraformOptions(), "file_system_id")
-	fileSystemArn := terraform.Output(t, ctx.TerratestTerraformOptions(), "file_system_arn")
-	fileSystemDnsName := terraform.Output(t, ctx.TerratestTerraformOptions(), "file_system_dns_name")
-	fileSystemCreationToken := terraform.Output(t, ctx.TerratestTerraformOptions(), "file_system_creation_token")
-	fileSystemName := terraform.Output(t, ctx.TerratestTerraformOptions(), "file_system_name")
+	fileSystemId := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "file_system_id")
+	fileSystemArn := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "file_system_arn")
+	fileSystemDnsName := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "file_system_dns_name")
+	fileSystemCreationToken := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "file_system_creation_token")
+	fileSystemName := terraform.OutputContext(t, context.Background(), ctx.TerratestTerraformOptions(), "file_system_name")
 
 	// Get the actual file system from AWS
 	fileSystem, err := efsClient.DescribeFileSystems(context.TODO(), &efs.DescribeFileSystemsInput{
