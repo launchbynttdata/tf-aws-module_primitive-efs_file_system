@@ -132,16 +132,12 @@ For cost optimization with lifecycle policies, see the [complete example](../com
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.100 |
 
-## Providers
-
-No providers.
-
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_resource_names"></a> [resource\_names](#module\_resource\_names) | terraform.registry.launch.nttdata.com/module_library/resource_name/launch | ~> 2.0 |
 | <a name="module_efs"></a> [efs](#module\_efs) | ../../ | n/a |
+| <a name="module_resource_names"></a> [resource\_names](#module\_resource\_names) | terraform.registry.launch.nttdata.com/module_library/resource_name/launch | ~> 2.0 |
 
 ## Resources
 
@@ -151,30 +147,30 @@ No resources.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_logical_product_family"></a> [logical\_product\_family](#input\_logical\_product\_family) | Logical product family name for naming convention | `string` | n/a | yes |
-| <a name="input_logical_product_service"></a> [logical\_product\_service](#input\_logical\_product\_service) | Logical product service name for naming convention | `string` | n/a | yes |
 | <a name="input_class_env"></a> [class\_env](#input\_class\_env) | Environment class for naming convention (e.g., sandbox, dev, prod) | `string` | n/a | yes |
+| <a name="input_creation_token"></a> [creation\_token](#input\_creation\_token) | Optional unique identifier for the EFS file system. If not provided, will use the generated or provided name value | `string` | `null` | no |
+| <a name="input_encrypted"></a> [encrypted](#input\_encrypted) | If true, the disk will be encrypted | `bool` | `true` | no |
 | <a name="input_instance_env"></a> [instance\_env](#input\_instance\_env) | Environment instance number for naming convention | `number` | n/a | yes |
 | <a name="input_instance_resource"></a> [instance\_resource](#input\_instance\_resource) | Resource instance number for naming convention | `number` | n/a | yes |
+| <a name="input_kms_key_id"></a> [kms\_key\_id](#input\_kms\_key\_id) | ARN for the KMS encryption key. Required if encrypted is true | `string` | `null` | no |
+| <a name="input_logical_product_family"></a> [logical\_product\_family](#input\_logical\_product\_family) | Logical product family name for naming convention | `string` | n/a | yes |
+| <a name="input_logical_product_service"></a> [logical\_product\_service](#input\_logical\_product\_service) | Logical product service name for naming convention | `string` | n/a | yes |
+| <a name="input_name"></a> [name](#input\_name) | Optional name for the EFS file system. If not provided, a generated name from resource\_names module will be used | `string` | `null` | no |
+| <a name="input_performance_mode"></a> [performance\_mode](#input\_performance\_mode) | The file system performance mode. Valid values: 'generalPurpose' (default, lower latency) or 'maxIO' (higher aggregate throughput) | `string` | `"generalPurpose"` | no |
 | <a name="input_region"></a> [region](#input\_region) | AWS region for naming convention | `string` | n/a | yes |
 | <a name="input_resource_names_map"></a> [resource\_names\_map](#input\_resource\_names\_map) | Map of resource types to their configurations for name generation | <pre>map(object({<br/>    name       = string<br/>    max_length = optional(number, 60)<br/>  }))</pre> | `{}` | no |
-| <a name="input_creation_token"></a> [creation\_token](#input\_creation\_token) | Optional unique identifier for the EFS file system. If not provided, will use the generated or provided name value | `string` | `null` | no |
-| <a name="input_name"></a> [name](#input\_name) | Optional name for the EFS file system. If not provided, a generated name from resource\_names module will be used | `string` | `null` | no |
-| <a name="input_encrypted"></a> [encrypted](#input\_encrypted) | If true, the disk will be encrypted | `bool` | `true` | no |
-| <a name="input_kms_key_id"></a> [kms\_key\_id](#input\_kms\_key\_id) | ARN for the KMS encryption key. Required if encrypted is true | `string` | `null` | no |
-| <a name="input_performance_mode"></a> [performance\_mode](#input\_performance\_mode) | The file system performance mode. Valid values: 'generalPurpose' (default, lower latency) or 'maxIO' (higher aggregate throughput) | `string` | `"generalPurpose"` | no |
-| <a name="input_throughput_mode"></a> [throughput\_mode](#input\_throughput\_mode) | Throughput mode for the file system. Valid values: 'bursting' (scales with file system size), 'elastic' (auto-scaling), or 'provisioned' (fixed throughput) | `string` | `"bursting"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to the EFS file system | `map(string)` | <pre>{<br/>  "Environment": "dev",<br/>  "Example": "simple"<br/>}</pre> | no |
+| <a name="input_throughput_mode"></a> [throughput\_mode](#input\_throughput\_mode) | Throughput mode for the file system. Valid values: 'bursting' (scales with file system size), 'elastic' (auto-scaling), or 'provisioned' (fixed throughput) | `string` | `"bursting"` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| <a name="output_file_system_id"></a> [file\_system\_id](#output\_file\_system\_id) | The ID of the EFS file system |
 | <a name="output_file_system_arn"></a> [file\_system\_arn](#output\_file\_system\_arn) | Amazon Resource Name of the file system |
-| <a name="output_file_system_dns_name"></a> [file\_system\_dns\_name](#output\_file\_system\_dns\_name) | The DNS name for the filesystem |
-| <a name="output_file_system_creation_token"></a> [file\_system\_creation\_token](#output\_file\_system\_creation\_token) | The creation token of the EFS file system |
 | <a name="output_file_system_availability_zone_id"></a> [file\_system\_availability\_zone\_id](#output\_file\_system\_availability\_zone\_id) | The identifier of the Availability Zone in which the file system's One Zone storage classes exist |
 | <a name="output_file_system_availability_zone_name"></a> [file\_system\_availability\_zone\_name](#output\_file\_system\_availability\_zone\_name) | The Availability Zone name in which the file system's One Zone storage classes exist |
+| <a name="output_file_system_creation_token"></a> [file\_system\_creation\_token](#output\_file\_system\_creation\_token) | The creation token of the EFS file system |
+| <a name="output_file_system_dns_name"></a> [file\_system\_dns\_name](#output\_file\_system\_dns\_name) | The DNS name for the filesystem |
+| <a name="output_file_system_id"></a> [file\_system\_id](#output\_file\_system\_id) | The ID of the EFS file system |
 | <a name="output_file_system_name"></a> [file\_system\_name](#output\_file\_system\_name) | The value of the file system's Name tag |
 <!-- END_TF_DOCS -->
