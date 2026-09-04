@@ -35,7 +35,9 @@ resource "aws_efs_file_system" "this" {
   # Transition files to Infrequent Access (IA) storage class after specified period
   # Reduces storage costs for files that are not accessed frequently
   dynamic "lifecycle_policy" {
-    for_each = var.lifecycle_policy != null && var.lifecycle_policy.transition_to_ia != null ? [var.lifecycle_policy.transition_to_ia] : []
+    for_each = var.lifecycle_policy == null ? [] : (
+      var.lifecycle_policy.transition_to_ia != null ? [var.lifecycle_policy.transition_to_ia] : []
+    )
     content {
       transition_to_ia = lifecycle_policy.value
     }
@@ -44,7 +46,9 @@ resource "aws_efs_file_system" "this" {
   # Transition files back to primary storage class after first access
   # Optimizes for files that become active again after being moved to IA
   dynamic "lifecycle_policy" {
-    for_each = var.lifecycle_policy != null && var.lifecycle_policy.transition_to_primary_storage_class != null ? [var.lifecycle_policy.transition_to_primary_storage_class] : []
+    for_each = var.lifecycle_policy == null ? [] : (
+      var.lifecycle_policy.transition_to_primary_storage_class != null ? [var.lifecycle_policy.transition_to_primary_storage_class] : []
+    )
     content {
       transition_to_primary_storage_class = lifecycle_policy.value
     }
@@ -54,7 +58,9 @@ resource "aws_efs_file_system" "this" {
   # Provides the lowest cost storage option, requires transition_to_ia to be set
   # Requires Elastic throughput mode and General Purpose performance mode
   dynamic "lifecycle_policy" {
-    for_each = var.lifecycle_policy != null && var.lifecycle_policy.transition_to_archive != null ? [var.lifecycle_policy.transition_to_archive] : []
+    for_each = var.lifecycle_policy == null ? [] : (
+      var.lifecycle_policy.transition_to_archive != null ? [var.lifecycle_policy.transition_to_archive] : []
+    )
     content {
       transition_to_archive = lifecycle_policy.value
     }
